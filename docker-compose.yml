@@ -7,6 +7,18 @@ services:
       - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+  
+  api_gateway:
+    build:
+      context: ./services/api_gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./shared:/app/shared
+    env_file:
+      - .env
+    depends_on:
+      - qdrant
 
 volumes:
   qdrant_data:
