@@ -7,12 +7,6 @@ router = APIRouter()
 async def chat_stub(request: Request):
     return {"detail": "Agent service not connected yet"}, 503
 
-
-@router.post("/api/files/upload")
-async def upload_stub(request: Request):
-    return {"detail": "File processor service not connected yet"}, 503
-
-
 @router.post("/api/voice/transcribe")
 async def transcribe_stub(request: Request):
     return {"detail": "Voice service not connected yet"}, 503

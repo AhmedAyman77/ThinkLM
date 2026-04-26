@@ -1,7 +1,5 @@
 fastapi
 uvicorn
-httpx
-pyjwt
 pydantic-settings
 python-dotenv
 supabase
