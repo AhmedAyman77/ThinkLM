@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+pydantic-settings
+python-dotenv
+langgraph
+langchain
+langchain-google-genai
+supabase
+redis
+qdrant-client
+google-genai

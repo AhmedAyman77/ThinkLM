@@ -3,10 +3,6 @@ from fastapi import APIRouter, Request
 router = APIRouter()
 
 
-@router.post("/api/chat")
-async def chat_stub(request: Request):
-    return {"detail": "Agent service not connected yet"}, 503
-
 @router.post("/api/voice/transcribe")
 async def transcribe_stub(request: Request):
     return {"detail": "Voice service not connected yet"}, 503

@@ -3,7 +3,8 @@ from enum import Enum
 class QdrantEnum(Enum):
     CHUNK_SIZE = 512
     CHUNK_OVERLAP = 50
-
+    TOP_K = 5
+    SIMILARITY_THRESHOLD = 0.75
 class RedisEnum(Enum):
     QUEUE_NAME = 'file_processing_queue'
 
