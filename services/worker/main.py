@@ -1,5 +1,5 @@
 import json
-from shared import redis_client, RedisEnum, queue_service, files_repository
+from shared import queue_service, files_repository
 from controllers.processing_controller import ProcessingController
 
 processing_controller = ProcessingController()
@@ -7,7 +7,7 @@ processing_controller = ProcessingController()
 print("Worker started. Waiting for jobs...")
 
 while True:
-    result = redis_client.brpop(RedisEnum.QUEUE_NAME.value, timeout=0)
+    result = queue_service.consume_job()
 
     if result:
         _, job_data = result

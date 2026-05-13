@@ -1,13 +1,13 @@
 from typing import TypedDict, Optional
-from google import genai
-from shared import settings
+from utils.genai_client import genai_client
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = genai_client
 
 class AgentState(TypedDict):
     user_message: str
     conversation_id: str
     user_id: str
+    file_id: Optional[str]
     history: list[dict]
     intent: Optional[str]
     response: Optional[str]

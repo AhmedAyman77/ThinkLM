@@ -1,61 +1,73 @@
 from graph.nodes import AgentState
-from shared import settings, supabase_client
-from google import genai
+from shared import supabase_client, SupabaseEnum
+from utils.summarize_model import summarize
+from utils.genai_client import genai_client
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = genai_client
 
-MAX_CHUNK_CHARS = 8000
-
-
-def _get_user_files(user_id: str) -> list[dict]:
-    response = supabase_client.table("files") \
-        .select("raw_text_path, file_name") \
-        .eq("user_id", user_id) \
-        .eq("status", "ready") \
-        .execute()
-    return response.data
-
-
-def _download_text(raw_text_path: str) -> str:
-    content = supabase_client.storage.from_("documents").download(raw_text_path)
+def download_text(raw_text_path: str) -> str:
+    content = supabase_client.storage.from_(SupabaseEnum.STORAGE_BUCKET.value).download(raw_text_path)
     return content.decode("utf-8")
 
+def get_file(file_id: str, user_id: str) -> str:
+    response = supabase_client.table("files") \
+        .select("content_path") \
+        .eq("user_id", user_id) \
+        .eq("id", file_id) \
+        .eq("status", "ready") \
+        .single() \
+        .execute()
 
-def _split_into_chunks(text: str) -> list[str]:
-    return [text[i:i + MAX_CHUNK_CHARS] for i in range(0, len(text), MAX_CHUNK_CHARS)]
+    return response.data["content_path"] if response.data else None
 
+def get_random_file(user_id: str) -> str:
+    response = supabase_client.table("files") \
+        .select("content_path") \
+        .eq("user_id", user_id) \
+        .eq("status", "ready") \
+        .order("created_at", desc=True) \
+        .limit(1) \
+        .execute()
 
-def _map_summary(chunk: str) -> str:
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=f"Summarize this section concisely:\n\n{chunk}"
-    )
-    return response.text
-
-
-def _reduce_summaries(summaries: list[str]) -> str:
-    combined = "\n\n".join(summaries)
-    response = client.models.generate_content(
-        model="gemini-2.5-pro",
-        contents=f"Synthesize these summaries into one cohesive summary:\n\n{combined}"
-    )
-    return response.text
-
+    return response.data["content_path"] if response.data else None
 
 def summarize_agent(state: AgentState) -> AgentState:
-    files = _get_user_files(state["user_id"])
+    file_id = state["file_id"]
+    user_id = state["user_id"]
 
-    if not files:
-        return {**state, "response": "You have no documents uploaded yet."}
+    # get file
 
-    all_summaries = []
+    if file_id:
+        content_path = get_file(file_id, user_id)
+    else:
+        content_path = get_random_file(user_id)
+    
+    # get content
+    raw_text = download_text(content_path)
 
-    for file in files:
-        raw_text = _download_text(file["raw_text_path"])
-        chunks = _split_into_chunks(raw_text)
-        file_summaries = [_map_summary(chunk) for chunk in chunks]
-        all_summaries.extend(file_summaries)
+    # generate summary
+    system_message = "\n".join([
+        "You are a concise text summarizer.",
+        "You will be provided with a text to summarize.",
+        "Generate the summary in the same language as the input text.",
+        "Capture the key points and main ideas accurately.",
+        "Return only the summary with no introduction or conclusion."
+    ])
 
-    final_summary = _reduce_summaries(all_summaries)
+    message = [
+        {
+            "role": "system",
+            "content": system_message
+        },
+        {
+            "role": "user",
+            "content": "\n".join([
+                    "Original Text:",
+                    raw_text,
+                ])
+        },
+    ]
+
+    final_summary = summarize(message)
 
     return {**state, "response": final_summary}

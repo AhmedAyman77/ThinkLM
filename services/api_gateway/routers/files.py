@@ -1,16 +1,16 @@
 import httpx
 from shared import settings
-from fastapi import APIRouter, Request, UploadFile, File
+from fastapi import JSONResponse, APIRouter, Request, UploadFile, File
 
 router = APIRouter()
 
 @router.post("/api/files/upload", status_code=202)
 async def upload_file(request: Request, file: UploadFile = File(...)):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=30.0) as client:
         response = await client.post(
             f"{settings.FILE_PROCESSOR_URL}/upload",
             # httpx expects a tuple of (filename, file content, content type) to properly handle file uploads
             files={"file": (file.filename, await file.read(), file.content_type)},
             headers={"x-user-id": request.state.user_id},
         )
-    return response.json()
+    return JSONResponse(content = response.json(), status = response.status_code)

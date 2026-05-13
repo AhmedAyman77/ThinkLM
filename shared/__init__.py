@@ -5,3 +5,4 @@ from .utils.storage_service import storage_service
 from .constant import QdrantEnum, RedisEnum, SupabaseEnum, MiddlewareEnum, FileEnum
 from .supabase_client import supabase_client
 from .redis_client import redis_client
+from .models import Conversation, Message, File

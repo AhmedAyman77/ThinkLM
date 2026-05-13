@@ -1,14 +1,7 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import Optional
 from uuid import UUID
 from datetime import datetime
-
-class User(BaseModel):
-    id: UUID
-    name: str
-    email: EmailStr
-    created_at: datetime
-    updated_at: datetime
 
 class Conversation(BaseModel):
     id: UUID
@@ -33,5 +26,6 @@ class File(BaseModel):
     status: str = "processing"
     chunks_count: int = 0
     collection_name: Optional[str] = None
-    raw_text_path: Optional[str] = None
+    file_path: Optional[str] = None
+    content_path: Optional[str] = None
     created_at: datetime

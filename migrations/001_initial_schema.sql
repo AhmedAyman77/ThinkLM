@@ -1,16 +1,8 @@
 create extension if not exists "uuid-ossp";
 
-create table users (
-    id uuid primary key default uuid_generate_v4(),
-    name text not null,
-    email text unique not null,
-    created_at timestamptz default now(),
-    updated_at timestamptz default now()
-);
-
 create table conversations (
     id uuid primary key default uuid_generate_v4(),
-    user_id uuid references users(id) on delete cascade,
+    user_id uuid references auth.users(id) on delete cascade,
     title text,
     created_at timestamptz default now()
 );
@@ -27,12 +19,17 @@ create table messages (
 
 create table files (
     id uuid primary key default uuid_generate_v4(),
-    user_id uuid references users(id) on delete cascade,
+    user_id uuid references auth.users(id) on delete cascade,
     file_name text not null,
     mime_type text not null,
     status text check (status in ('processing', 'ready', 'failed')) default 'processing',
     chunks_count integer default 0,
     collection_name text,
-    raw_text_path text,
+    file_path text,
+    content_path text,
     created_at timestamptz default now()
 );
+
+CREATE INDEX idx_messages_conversation_id ON messages(conversation_id);
+CREATE INDEX idx_files_user_id ON files(user_id);
+CREATE INDEX idx_conversations_user_id ON conversations(user_id);

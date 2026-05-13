@@ -1,5 +1,4 @@
 import jwt
-import httpx
 from shared.config import settings
 from fastapi import Request
 from fastapi.responses import JSONResponse
@@ -7,7 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from shared.constant import MiddlewareEnum
 
 JWKS_URL = f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json"
-jwks_client = jwt.PyJWKClient(JWKS_URL)
+jwks_client = jwt.PyJWKClient(JWKS_URL, cache=True)
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -32,7 +31,15 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 algorithms=["ES256", "HS256"],
                 options={"verify_aud": False}
             )
-            request.state.user_id = payload.get("sub")
+            user_id= payload.get("sub")
+
+            if not user_id:
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Unauthorized: User ID not found in token"}
+                )
+            
+            request.state.user_id  = user_id
 
         except jwt.ExpiredSignatureError:
             return JSONResponse(

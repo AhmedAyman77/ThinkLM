@@ -6,13 +6,13 @@ class QueueService:
     def __init__(self):
         self.client = redis_client
     
-    def push_job(self, file_id: str, user_id: str, file_name: str, mime_type: str, storage_path: str):
+    def push_job(self, file_id: str, user_id: str, file_name: str, mime_type: str, storage_file_path: str):
         job = {
             "file_id": file_id,
             "user_id": user_id,
             "file_name": file_name,
             "mime_type": mime_type,
-            "storage_path": storage_path,
+            "storage_file_path": storage_file_path,
         }
         self.client.lpush(RedisEnum.QUEUE_NAME.value, json.dumps(job))
     

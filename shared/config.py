@@ -12,7 +12,6 @@ class Settings(BaseSettings):
     # Supabase
     SUPABASE_URL: str
     SUPABASE_SERVICE_ROLE_KEY: str
-    SUPABASE_JWT_SECRET: str
 
     # Redis
     REDIS_URL: str
@@ -24,6 +23,10 @@ class Settings(BaseSettings):
     # Service URLs
     FILE_PROCESSOR_URL: str
     AGENT_SERVICE_URL: str
+
+    # huggingface models id    
+    FINETUNED_SUMMARIZE_MODEL_ID: str
+    FINETUNED_TRANSLATE_MODEL_ID: str
 
     class Config:
         env_file = ".env"

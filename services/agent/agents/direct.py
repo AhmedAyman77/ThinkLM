@@ -1,8 +1,7 @@
 from graph.nodes import AgentState
-from shared import settings
-from google import genai
+from utils.genai_client import genai_client
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = genai_client
 
 def direct_agent(state: AgentState) -> AgentState:
     history = state["history"]

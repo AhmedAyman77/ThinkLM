@@ -1,9 +1,10 @@
 from graph.nodes import AgentState
 from utils.qdrant_search_service import qdrant_search_service
+from utils.genai_client import genai_client
 from shared import settings
-from google import genai
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+
+client = genai_client
 
 def _embed_query(query: str) -> list[float]:
     result = client.models.embed_content(

@@ -1,18 +1,54 @@
 from graph.nodes import AgentState
-from shared import settings
-from google import genai
+from utils.genai_client import genai_client
+from utils.translation_model import translate
+from langdetect import detect
 
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+client = genai_client
+
+def language_detect(text: str) -> str:
+    try:
+        return detect(text)
+    except Exception:
+        return "en"
+
+def system_message(language: str) -> str:
+    arabic_system_message = "\n".join([
+        "أنت مترجم محترف.",
+        "ترجم النص المقدم بدقة الى اللغه العربيه.",
+        "حافظ على المعنى الأصلي والأسلوب والسياق.",
+        "اكتب الترجمة فقط — بدون شرح أو مقدمة أو أي نص إضافي."
+    ])
+    english_system_message = "\n".join([
+        "You are a professional translator.",
+        "Translate the provided text accurately in english.",
+        "Preserve the original meaning, tone, and style.",
+        "Output only the translation — no explanations, no introductions, no extra text."
+    ])
+
+    if language == "ar":
+        return arabic_system_message
+
+    return english_system_message
+
 
 def translate_agent(state: AgentState) -> AgentState:
-    system_prompt = """You are a translator. The user will ask you to translate content.
-Detect the target language from their request and translate accurately.
-Return only the translated content, nothing else."""
+    system_prompt = system_message(language_detect(state["user_message"]))
+    user_message = state["user_message"]
 
-    response = client.models.generate_content(
-        model="gemini-2.5-pro",
-        contents=state["user_message"],
-        config={"system_instruction": system_prompt}
-    )
+    messages = [
+        {
+            "role": "system",
+            "content": system_prompt
+        },
+        {
+            "role": "user",
+            "content": "\n".join([
+                        "Original Text:",
+                        user_message,
+                    ])
+        },
+    ]
+    
+    response = translate(messages)
 
-    return {**state, "response": response.text}
+    return {**state, "response": response}

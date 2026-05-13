@@ -1,3 +1,3 @@
 class TextExtractor:
     def extract(self, file: bytes) -> str:
-        return file.decode('utf-8').strip()
+        return file.decode('utf-8', errors='replace').strip()

@@ -31,12 +31,21 @@ class ProcessingController:
         file_id = job["file_id"]
         user_id = job["user_id"]
         mime_type = job["mime_type"]
-        storage_path = job["storage_path"]
+        storage_file_path = job["storage_file_path"]
         file_name = job["file_name"]
         collection_name = f"collection_{user_id}"
 
-        file_bytes = self.storage_service.download(storage_path)
+        file_bytes = self.storage_service.download(storage_file_path)
+        
+        # save raw text to storage
         raw_text = self.extract_text(file_bytes, mime_type)
+        if not raw_text.strip():
+            raise ValueError("No text could be extracted from the file")
+
+        storage_content_path = f"{user_id}/{file_id}_extracted.txt"
+        self.storage_service.upload(raw_text=raw_text, storage_path=storage_content_path, mime_type="text/plain")
+        self.files_repository.update_file_content_path(file_id, storage_content_path)
+
         chunks = self.chunk_service.chunk(raw_text)
         embeddings = self.embedding_service.embed(chunks)
 
