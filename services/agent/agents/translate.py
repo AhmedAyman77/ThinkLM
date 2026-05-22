@@ -22,7 +22,7 @@ def system_message(language: str) -> str:
         "You are a professional translator.",
         "Translate the provided text accurately in english.",
         "Preserve the original meaning, tone, and style.",
-        "Output only the translation — no explanations, no introductions, no extra text."
+        "Output only the translation — no explanations, no introductions, no extra text.",
     ])
 
     if language == "ar":
@@ -43,9 +43,12 @@ def translate_agent(state: AgentState) -> AgentState:
         {
             "role": "user",
             "content": "\n".join([
-                        "Original Text:",
-                        user_message,
-                    ])
+                "The user sent the following message. It contains an instruction and the text to translate.",
+                "Extract only the text that needs to be translated (ignore the instruction part) and translate it.",
+                "",
+                "User message:",
+                user_message,
+            ])
         },
     ]
     

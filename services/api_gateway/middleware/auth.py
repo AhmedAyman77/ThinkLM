@@ -46,6 +46,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
                 status_code=401,
                 content={"detail": "Unauthorized: Token has expired"}
             )
+        
         except jwt.InvalidTokenError:
             return JSONResponse(
                 status_code=401,

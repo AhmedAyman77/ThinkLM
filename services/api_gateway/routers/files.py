@@ -13,4 +13,5 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
             files={"file": (file.filename, await file.read(), file.content_type)},
             headers={"x-user-id": request.state.user_id},
         )
+    
     return JSONResponse(content = response.json(), status = response.status_code)

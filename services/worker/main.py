@@ -7,12 +7,9 @@ processing_controller = ProcessingController()
 print("Worker started. Waiting for jobs...")
 
 while True:
-    result = queue_service.consume_job()
+    job = queue_service.consume_job()
 
-    if result:
-        _, job_data = result
-        job = json.loads(job_data)
-
+    if job:
         file_id = job["file_id"]
         user_id = job["user_id"]
 
