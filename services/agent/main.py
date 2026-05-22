@@ -1,3 +1,4 @@
+import utils.session
 from fastapi import FastAPI
 from routers.chat import router as chat_router
 

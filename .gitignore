@@ -49,10 +49,8 @@ ENV/
 .venv/
 
 # Environment variables
-.env
 
 # IDEs and editors
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -93,3 +91,5 @@ db.sqlite3
 # Docker
 *.env
 docker-compose.override.yml
+config.bat
+node_modules
